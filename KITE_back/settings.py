@@ -38,6 +38,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'city',
+    'festival',
+    'member',
+    'main',
+    'travel',
+    #rest framework 관련
+    'rest_framework',
+    'rest_framework.authtoken',
+	#dj-rest-auth 관련
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+	'allauth',
+	'allauth.account',
+	# simple-jwt 관련 관련
+	'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +160,67 @@ CORS_ALLOW_CREDENTIALS = True
 import pymysql
 
 pymysql.install_as_MySQLdb()
+
+
+REST_AUTH = {
+    'LOGIN_SERIALIZER': 'dj_rest_auth.serializers.LoginSerializer',
+    'TOKEN_SERIALIZER': 'dj_rest_auth.serializers.TokenSerializer',
+    'JWT_SERIALIZER': 'dj_rest_auth.serializers.JWTSerializer',
+    'JWT_SERIALIZER_WITH_EXPIRATION': 'dj_rest_auth.serializers.JWTSerializerWithExpiration',
+    'JWT_TOKEN_CLAIMS_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
+	# 'USER_DETAILS_SERIALIZER': 'dj_rest_auth.serializers.UserDetailsSerializer',
+    'USER_DETAILS_SERIALIZER': 'members.serializers.CustomUserDetailSerializer',
+    'PASSWORD_RESET_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetSerializer',
+    'PASSWORD_RESET_CONFIRM_SERIALIZER': 'dj_rest_auth.serializers.PasswordResetConfirmSerializer',
+    'PASSWORD_CHANGE_SERIALIZER': 'dj_rest_auth.serializers.PasswordChangeSerializer',
+
+    # 'REGISTER_SERIALIZER': 'dj_rest_auth.registration.serializers.RegisterSerializer',
+    'REGISTER_SERIALIZER': 'members.serializers.CustomRegisterSerializer',
+
+    'REGISTER_PERMISSION_CLASSES': ('rest_framework.permissions.AllowAny',),
+
+    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+    'TOKEN_CREATOR': 'dj_rest_auth.utils.default_create_token',
+
+    'PASSWORD_RESET_USE_SITES_DOMAIN': False,
+    'OLD_PASSWORD_FIELD_ENABLED': False,
+    'LOGOUT_ON_PASSWORD_CHANGE': False,
+    'SESSION_LOGIN': True,
+    'USE_JWT': True, #이부분
+
+    'JWT_AUTH_COOKIE': None,
+    'JWT_AUTH_REFRESH_COOKIE': None,
+    'JWT_AUTH_REFRESH_COOKIE_PATH': '/',
+    'JWT_AUTH_SECURE': False,
+    'JWT_AUTH_HTTPONLY': False, #이부분
+    'JWT_AUTH_SAMESITE': 'Lax',
+    'JWT_AUTH_RETURN_EXPIRATION': False,
+    'JWT_AUTH_COOKIE_USE_CSRF': False,
+    'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': False,
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_REQUIRED = False
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+}
