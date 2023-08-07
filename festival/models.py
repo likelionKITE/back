@@ -1,12 +1,13 @@
 from django.db import models
 
 # Create your models here.
-from main.models import ServiceCode
+
+from main.models import Tour
 
 
 class DetailIntroFest(models.Model):
     id = models.AutoField(primary_key=True, null=False, blank=False)
-    content_id = models.ForeignKey(ServiceCode, on_delete=models.CASCADE, related_name='detail_intro_fest')
+    content_id = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='detail_intro_fest')
     place_info = models.TextField(default='')
     event_homepage = models.URLField(max_length=1024)
     event_place = models.CharField(max_length=40)
