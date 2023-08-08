@@ -127,8 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'member.CustomUser'
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -162,6 +160,7 @@ import pymysql
 
 pymysql.install_as_MySQLdb()
 
+AUTH_USER_MODEL = 'member.CustomUser'
 
 REST_AUTH = {
     'LOGIN_SERIALIZER': 'dj_rest_auth.serializers.LoginSerializer',
