@@ -62,8 +62,8 @@ class DetailInfo(models.Model):
 class DetailCommon(models.Model):
     id = models.AutoField(primary_key=True, null=False, blank=False)
     overview = models.TextField(default='')
-    tel_Name = models.CharField(max_length=50)
-    title = models.CharField(max_length=90)
+    tel_Name = models.CharField(max_length=500)
+    title = models.CharField(max_length=500)
     modified_time = models.CharField(max_length=50)
     homepage = models.TextField(default='')
     content_id = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='detailCommon')
