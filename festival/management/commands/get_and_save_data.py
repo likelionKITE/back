@@ -1,3 +1,5 @@
+import time
+
 import django as django
 import requests
 from django.core.management.base import BaseCommand
@@ -14,57 +16,58 @@ class Command(BaseCommand):
     help = 'API 데이터를 DB에 저장'
 
     def handle(self, *args, **options):
-        api_key = settings.service_key
+        service_key = [settings.api_key_ja, settings.api_key_sy, settings.api_key_jy]
+        api_key = service_key[0]
         api_url_base = "http://apis.data.go.kr/B551011/EngService1"
         params = "?MobileOS=ETC&MobileApp=KITE&numOfRows=50000&_type=json&serviceKey="
 
         # # save servicecode
         contenttypeid = [76, 85]
 
-        for type in contenttypeid:
-            api_url = api_url_base + "/categoryCode1" + params + api_key + f"&contentTypeId={type}"
-            res = requests.get(api_url)
-            print(res, api_url)
-            cat1s = res.json()['response']['body']['items']['item']
-
-            cat1_code = []
-            cat1_name = []
-
-            for i in cat1s:
-                cat1_code.append(i['code'])
-                cat1_name.append(i['name'])
-
-            for cat1_idx in range(len(cat1_code)):
-                cat2_code = []
-                cat2_name = []
-                api_url = api_url_base + "/categoryCode1" + params + api_key + f"&contentTypeId={type}&cat1={cat1_code[cat1_idx]}"
-                res = requests.get(api_url)
-                print(res, api_url)
-                cat2s = res.json()['response']['body']['items']['item']
-
-                for j in cat2s:
-                    cat2_code.append(j['code'])
-                    cat2_name.append(j['name'])
-
-                for cat2_idx in range(len(cat2_code)):
-                    api_url = api_url_base + "/categoryCode1" + params + api_key + f"&contentTypeId={type}&cat1={cat1_code[cat1_idx]}&cat2={cat2_code[cat2_idx]}"
-                    res = requests.get(api_url)
-                    print(res, api_url)
-                    cat3s = res.json()['response']['body']['items']['item']
-
-                    for k in cat3s:
-                        servicecode_data = ServiceCode()
-                        try:
-                            ServiceCode.objects.get(sub_code=k['code'])
-                        except:
-                            servicecode_data.content_type_id = str(type)
-                            servicecode_data.main_code = cat1_code[cat1_idx]
-                            servicecode_data.main_name = cat1_name[cat1_idx]
-                            servicecode_data.mid_code = cat2_code[cat2_idx]
-                            servicecode_data.mid_name = cat2_name[cat2_idx]
-                            servicecode_data.sub_code = k['code']
-                            servicecode_data.sub_name = k['name']
-                            servicecode_data.save()
+        # for type in contenttypeid:
+        #     api_url = api_url_base + "/categoryCode1" + params + api_key + f"&contentTypeId={type}"
+        #     res = requests.get(api_url)
+        #     print(res, api_url)
+        #     cat1s = res.json()['response']['body']['items']['item']
+        #
+        #     cat1_code = []
+        #     cat1_name = []
+        #
+        #     for i in cat1s:
+        #         cat1_code.append(i['code'])
+        #         cat1_name.append(i['name'])
+        #
+        #     for cat1_idx in range(len(cat1_code)):
+        #         cat2_code = []
+        #         cat2_name = []
+        #         api_url = api_url_base + "/categoryCode1" + params + api_key + f"&contentTypeId={type}&cat1={cat1_code[cat1_idx]}"
+        #         res = requests.get(api_url)
+        #         print(res, api_url)
+        #         cat2s = res.json()['response']['body']['items']['item']
+        #
+        #         for j in cat2s:
+        #             cat2_code.append(j['code'])
+        #             cat2_name.append(j['name'])
+        #
+        #         for cat2_idx in range(len(cat2_code)):
+        #             api_url = api_url_base + "/categoryCode1" + params + api_key + f"&contentTypeId={type}&cat1={cat1_code[cat1_idx]}&cat2={cat2_code[cat2_idx]}"
+        #             res = requests.get(api_url)
+        #             print(res, api_url)
+        #             cat3s = res.json()['response']['body']['items']['item']
+        #
+        #             for k in cat3s:
+        #                 servicecode_data = ServiceCode()
+        #                 try:
+        #                     ServiceCode.objects.get(sub_code=k['code'])
+        #                 except:
+        #                     servicecode_data.content_type_id = str(type)
+        #                     servicecode_data.main_code = cat1_code[cat1_idx]
+        #                     servicecode_data.main_name = cat1_name[cat1_idx]
+        #                     servicecode_data.mid_code = cat2_code[cat2_idx]
+        #                     servicecode_data.mid_name = cat2_name[cat2_idx]
+        #                     servicecode_data.sub_code = k['code']
+        #                     servicecode_data.sub_name = k['name']
+        #                     servicecode_data.save()
 
         #
         #
@@ -100,14 +103,21 @@ class Command(BaseCommand):
         #
         #
         # save tour
+        cnt = 0
+        idx = 0
         for typeid in contenttypeid:
             # save tour-travel
-            api_url = api_url_base + "/areaBasedList1" + params + api_key + f"&contentTypeId={typeid}&listYN=Y"
+            api_url = api_url_base + "/areaBasedList1" + params + api_key + f"&contentTypeId={typeid}&listYN=Y&arrange=A"
             res = requests.get(api_url)
             print(res, api_url)
             tours = res.json()['response']['body']['items']['item']
 
             for i in tours:
+                cnt += 1
+                if cnt > 870:
+                    cnt = 0
+                    idx += 1
+                    api_key = service_key[idx]
                 tour_data = Tour()
                 print(i)
                 try:
@@ -137,6 +147,7 @@ class Command(BaseCommand):
                         # 상세페이지 정보
                         ## save detailcommon
                         api_url = api_url_base + "/detailCommon1" + params + api_key + f"&contentId={i['contentid']}&defaultYN=Y&overviewYN=Y&transGuideYN=Y"
+                        time.sleep(0.5)
                         res = requests.get(api_url)
                         print(res, res.text, api_url)
                         commons = res.json()['response']['body']['items']['item']
@@ -153,8 +164,9 @@ class Command(BaseCommand):
                                 common_data.content_id = Tour.objects.get(content_id=common['contentid'])
                                 common_data.save()
 
-                        # save detailinfo
+                        ## save detailinfo
                         api_url = api_url_base + "/detailInfo1" + params + api_key + f"&contentId={i['contentid']}&contentTypeId={i['contenttypeid']}"
+                        time.sleep(0.5)
                         res = requests.get(api_url)
                         print(res, res.text, api_url)
                         try:  # 아예 detailinfo가 없는 게 있음
@@ -176,8 +188,9 @@ class Command(BaseCommand):
                             info_data.content_id = Tour.objects.get(content_id=i['contentid'])
                             info_data.save()
 
-                        # save detailintro
+                        ## save detailintro
                         api_url = api_url_base + "/detailIntro1" + params + api_key + f"&contentId={i['contentid']}&contentTypeId={i['contenttypeid']}"
+                        time.sleep(0.5)
                         res = requests.get(api_url)
                         print(res, res.text, api_url)
                         intros = res.json()['response']['body']['items']['item']
@@ -232,10 +245,13 @@ class Command(BaseCommand):
 
 
                     except main.models.ServiceCode.DoesNotExist as e:
-                            print('contentid: '+i['contentid']+', contenttypeid: '+i['contenttypeid']+', cat: '+i['cat3'])
-                            print(e)
+                        print('contentid: '+i['contentid']+', contenttypeid: '+i['contenttypeid']+', cat: '+i['cat3'])
+                        print(e)
                     except main.models.AreaCode.DoesNotExist as e:
-                            print('contentid: '+i['contentid']+', contenttypeid: '+i['contenttypeid']+', areacode: '+i['areacode'])
-                            print(e)
+                        print('contentid: '+i['contentid']+', contenttypeid: '+i['contenttypeid']+', areacode: '+i['areacode'])
+                        print(e)
+                    except requests.exceptions.JSONDecodeError as e:
+                        print(e)
+
 
 
