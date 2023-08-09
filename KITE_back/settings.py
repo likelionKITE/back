@@ -22,6 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 from decouple import config
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
+api_key_ja = config('api_key_ja')
+api_key_sy = config('api_key_sy')
+api_key_jy = config('api_key_jy')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
