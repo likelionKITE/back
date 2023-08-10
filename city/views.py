@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from main.models import ServiceCode, AreaCode, Tour, DetailInfo
+from main.models import ServiceCode, AreaCode, Tour, DetailInfo, DetailCommon
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -34,7 +34,24 @@ class CityListView(generics.ListAPIView):
                 return parts[-2].strip() if len(parts) >= 2 else ''
 
             class Meta(CitySerializer.Meta):
-                fields = ('title', 'first_image', 'sido_part', 'sigungu_part')
+                fields = ('title', 'first_image', 'sido_part', 'sigungu_part', 'content_id')
 
         return CustomCitySerializer
+
+class CityDetailView(generics.RetrieveAPIView):
+    serializer_class = CitySerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        content_id = self.request.query_params.get('content_id')
+
+        if content_id is not None:
+            queryset = queryset.filter(content_id=content_id)
+
+        obj = generics.get_object_or_404(queryset, content_id=self.kwargs['content_id'])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def get_queryset(self):
+        return Tour.objects.all()
 
