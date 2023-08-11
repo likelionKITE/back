@@ -9,25 +9,17 @@ from rest_framework import generics
 # Create your views here.
 from main.models import Tour, AreaCode
 
+from django.db.models import Q
+
 from festival.serializers import FestivalSerializer, FestivalSerializer_now, FestivalDetailSerializer
-
-
-# class FestivalListView(generics.ListAPIView):
-#     serializer_class = FestivalSerializer_all
-#     queryset = Tour.objects.filter(content_type_id="85")
-#
-#
-# class FestivalNowView(generics.ListAPIView):
-#     serializer_class = FestivalSerializer_now
-#     nowdate = datetime.today().strftime("%Y%m%d")
-#     queryset = Tour.objects.filter(content_type_id="85").annotate(event_start_date=models.F('detail_intro_fest__event_start_date'),
-#         event_end_date=models.F('detail_intro_fest__event_end_date')).order_by('?')[:4]
 
 
 def festival_list_view_logic():
     queryset = Tour.objects.filter(content_type_id="85")
     serializer = FestivalSerializer(queryset, many=True)
     return serializer.data
+
+
 
 def festival_now_view_logic():
     nowdate = datetime.today().strftime("%Y%m%d")
@@ -39,18 +31,24 @@ def festival_now_view_logic():
     return serializer.data
 
 
-def festival_search_view_logic():
+class FestivalSearchView(generics.ListAPIView):
+
+    serializer_class = FestivalSerializer
     def get_queryset(self):
-        cat1_selected = self.request.GET.get('cat1')
-        cat2_selected = self.request.GET.get('cat2')
+        nowyear = datetime.today().strftime("%Y")
+        month_selected = self.request.GET.get('month')
+        area_selected = self.request.GET.get('area')
 
-        queryset = Tour.objects.filter(content_type_id="85")  # 여행지 데이터 가져오기
+        queryset = Tour.objects.filter(content_type_id="85").annotate(
+        event_start_date=models.F('detail_intro_fest__event_start_date'),
+        event_end_date=models.F('detail_intro_fest__event_end_date')
+    )  # 여행지 데이터 가져오기
 
-        if cat1_selected:
-            queryset = queryset.filter(cat1=cat1_selected)
+        if month_selected:
+            queryset = queryset.filter(Q(event_start_date__contains=nowyear+month_selected)|Q(event_end_date__contains=nowyear+month_selected))
 
-        if cat2_selected:
-            queryset = queryset.filter(cat2=cat2_selected)
+        if area_selected:
+            queryset = queryset.filter(area_code=area_selected)
 
         return queryset
 
@@ -81,5 +79,3 @@ def FestivalCombinedView_main(request):
 
 
     return JsonResponse(data)
-
-
