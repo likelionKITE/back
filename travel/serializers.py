@@ -9,7 +9,7 @@ class DetailCommonSerializer(serializers.ModelSerializer):
         model = DetailCommon
         fields = ['title', 'modified_time', 'overview', 'homepage']
 
-class DetailIntroSerializer(serializers.ModelSerializer):
+class DetailIntroTrvSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetailIntroTravel
         fields = '__all__'
@@ -20,7 +20,7 @@ class TravelSerializer(serializers.ModelSerializer):
     cat3 = serializers.CharField(source="cat3.sub_name", read_only=True)
 
     detailCommon = DetailCommonSerializer(many=True, read_only=True)
-    detail_intro_travel = DetailIntroSerializer(many=True, read_only=True)
+    detail_intro_travel = DetailIntroTrvSerializer(many=True, read_only=True)
 
     class Meta:
         model = Tour
