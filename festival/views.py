@@ -34,14 +34,25 @@ def festival_now_view_logic():
     queryset = Tour.objects.filter(content_type_id="85").annotate(
         event_start_date=models.F('detail_intro_fest__event_start_date'),
         event_end_date=models.F('detail_intro_fest__event_end_date')
-    ).filter(event_start_date__lte=nowdate, event_end_date__gte=nowdate).order_by('?')[:4]
+    ).filter(event_start_date__lte=nowdate, event_end_date__gte=nowdate).order_by('?')[:11]
     serializer = FestivalSerializer_now(queryset, many=True)
     return serializer.data
 
+
 def festival_search_view_logic():
-    queryset = Tour.objects.filter(content_type_id="85")
-    serializer = FestivalSerializer(queryset, many=True)
-    return serializer.data
+    def get_queryset(self):
+        cat1_selected = self.request.GET.get('cat1')
+        cat2_selected = self.request.GET.get('cat2')
+
+        queryset = Tour.objects.filter(content_type_id="85")  # 여행지 데이터 가져오기
+
+        if cat1_selected:
+            queryset = queryset.filter(cat1=cat1_selected)
+
+        if cat2_selected:
+            queryset = queryset.filter(cat2=cat2_selected)
+
+        return queryset
 
 
 class FestivalDetailView(generics.RetrieveAPIView):
