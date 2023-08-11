@@ -9,7 +9,7 @@ from rest_framework import generics
 # Create your views here.
 from main.models import Tour, AreaCode
 
-from festival.serializers import FestivalSerializer_all, FestivalSerializer_now
+from festival.serializers import FestivalSerializer, FestivalSerializer_now, FestivalDetailSerializer
 
 
 # class FestivalListView(generics.ListAPIView):
@@ -26,7 +26,7 @@ from festival.serializers import FestivalSerializer_all, FestivalSerializer_now
 
 def festival_list_view_logic():
     queryset = Tour.objects.filter(content_type_id="85")
-    serializer = FestivalSerializer_all(queryset, many=True)
+    serializer = FestivalSerializer(queryset, many=True)
     return serializer.data
 
 def festival_now_view_logic():
@@ -38,7 +38,25 @@ def festival_now_view_logic():
     serializer = FestivalSerializer_now(queryset, many=True)
     return serializer.data
 
+def festival_search_view_logic():
+    queryset = Tour.objects.filter(content_type_id="85")
+    serializer = FestivalSerializer(queryset, many=True)
+    return serializer.data
 
+
+class FestivalDetailView(generics.RetrieveAPIView):
+    serializer_class = FestivalDetailSerializer
+
+    def get_object(self):
+        content_id = self.request.query_params.get('content_id')
+        queryset = Tour.objects.filter(content_type_id="85")
+
+        if content_id is not None:
+            queryset = queryset.filter(content_id=content_id)
+
+        obj = generics.get_object_or_404(queryset, content_id=self.kwargs['content_id'])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 # 여러 뷰의 결과를 한 url에서 동시에 내보내기 - 근데 이렇게 하려면 view를 클래스형태가 아니라 저렇게 함수 형태로 구현해야 한대
 def FestivalCombinedView_main(request):
@@ -47,8 +65,9 @@ def FestivalCombinedView_main(request):
         future_view1 = executor.submit(festival_list_view_logic)
         future_view2 = executor.submit(festival_now_view_logic)
 
-        data['listview_response'] = future_view1.result()
         data['nowview_response'] = future_view2.result()
+        data['listview_response'] = future_view1.result()
+
 
     return JsonResponse(data)
 
