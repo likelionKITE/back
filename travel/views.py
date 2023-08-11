@@ -50,6 +50,23 @@ class TravelListView(generics.ListAPIView):
         
         return queryset
 
+class TravelDetailView(generics.RetrieveAPIView):
+    serializer_class = TravelSerializer
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        content_id = self.request.query_params.get('content_id')
+
+        if content_id is not None:
+            queryset = queryset.filter(content_id=content_id)
+
+        obj = generics.get_object_or_404(queryset, content_id=self.kwargs['content_id'])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def get_queryset(self):
+        return Tour.objects.all()
+
     # def get_serializer_class(self):
     #     return CustomTravelSerializer
 
