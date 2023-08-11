@@ -2,6 +2,10 @@ from rest_framework import serializers
 from main.models import Tour, AreaCode, ServiceCode, DetailCommon
 
 # Create your serializers here.
+class DetailCommonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DetailCommon
+        fields = ['title', 'modified_time', 'overview', 'homepage']
 
 class CitySerializer(serializers.ModelSerializer):
     area_code = serializers.CharField(source="sigungu_code.name", read_only=True)
@@ -9,6 +13,8 @@ class CitySerializer(serializers.ModelSerializer):
     cat1 = serializers.CharField(source="cat3.main_name", read_only=True)
     cat2 = serializers.CharField(source="cat3.mid_name", read_only=True)
     cat3 = serializers.CharField(source="cat3.sub_name", read_only=True)
+    
+    detailCommon = DetailCommonSerializer(many=True, read_only=True)
 
     class Meta:
         model = Tour
@@ -30,4 +36,5 @@ class CitySerializer(serializers.ModelSerializer):
                 "modified_time",
                 "sigungu_code",
                 "tel",
-                "title"]
+                "title",
+                "detailCommon"]

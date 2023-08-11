@@ -54,4 +54,3 @@ class CityDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Tour.objects.all()
-
