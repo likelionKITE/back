@@ -85,44 +85,9 @@ class CityDetailView(generics.RetrieveAPIView):
     def get_queryset(self):
         return Tour.objects.all()
 
-# class CityTotalListView(generics.ListAPIView):
-#     serializer_class = CustomCitySerializer
-#     pagination_class = CityPagination
-
-#     def get_queryset(self):
-#         area_selected = self.request.GET.get('area_code')
-#         current_date = datetime.today().strftime("%Y%m%d")
-
-#         travel_queryset = Tour.objects.filter(content_type_id="76")
-#         fest_queryset = Tour.objects.filter(content_type_id="85")
-
-#         if area_selected:
-#             travel_queryset = travel_queryset.filter(area_code=area_selected)
-#             fest_queryset = fest_queryset.filter(area_code=area_selected)
-
-#         fest_queryset = fest_queryset.filter(
-#             Q(detail_intro_fest__event_start_date__lte=current_date) &
-#             Q(detail_intro_fest__event_end_date__gte=current_date)
-#         )
-
-#         total_queryset = travel_queryset.union(fest_queryset)
-#         return total_queryset
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         page = self.paginate_queryset(queryset)
-
-#         if page is not None:
-#             serializer = self.get_serializer(page, many=True)
-#             return self.get_paginated_response(serializer.data)
-
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(serializer.data)
-
-# from rest_framework.response import Response
-
-class CityTotal2ListView(generics.ListAPIView):
+class CityTotalListView(generics.ListAPIView):
     serializer_class = CustomCitySerializer
+    pagination_class = CityPagination
 
     def get_queryset(self):
         area_selected = self.request.GET.get('area_code')
@@ -149,38 +114,11 @@ class CityTotal2ListView(generics.ListAPIView):
 
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            travel_data = []
-            fest_data = []
-
-            for obj in serializer.data:
-                if obj["content_type_id"] == "76":
-                    travel_data.append(obj)
-                elif obj["content_type_id"] == "85":
-                    fest_data.append(obj)
-
-            result = {
-                "travel": travel_data,
-                "festival": fest_data
-            }
-
-            return self.get_paginated_response(result)
+            return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        travel_data = []
-        fest_data = []
+        return Response(serializer.data)
 
-        for obj in serializer.data:
-            if obj["content_type_id"] == "76":
-                travel_data.append(obj)
-            elif obj["content_type_id"] == "85":
-                fest_data.append(obj)
-
-        result = {
-            "travel": travel_data,
-            "festival": fest_data
-        }
-
-        return Response(result)
 
 
 
