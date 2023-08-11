@@ -172,10 +172,16 @@ class CityTotalListView(generics.ListAPIView):
                 travel_data.append(obj)
             elif obj['content_type_id'] == '85':
                 fest_data.append(obj)
-        
+
+        area_dict = {}
+        for i in AreaCode.objects.all():
+            if i.name not in area_dict:
+                area_dict[i.name] = i.code
+
         result = {
             'travel': travel_data,
-            'fest': fest_data
+            'fest': fest_data,
+            'area_dict': area_dict
         }
 
         return Response(result)
