@@ -4,7 +4,7 @@ from .models import DetailIntroTravel
 from rest_framework import generics
 from rest_framework import serializers
 from rest_framework.views import APIView
-from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from .serializers import TravelSerializer
 
@@ -25,10 +25,11 @@ class CustomTravelSerializer(TravelSerializer):
                 return parts[-2].strip() if len(parts) >= 2 else ''
 
             class Meta(TravelSerializer.Meta):
-                fields = ('title', 'first_image', 'sido_part', 'sigungu_part', 'content_id')
+                fields = ('title', 'first_image2', 'sido_part', 'sigungu_part', 'content_id')
 
 class TravelPagination(LimitOffsetPagination):
     default_limit = 20
+
 #===================================================================================================
 
 class TravelListView(generics.ListAPIView):
@@ -66,6 +67,12 @@ class TravelDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Tour.objects.all()
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serialized_instance = self.serializer_class(instance=instance).data
+        result = [serialized_instance]  # 결과를 리스트에 추가
+        return Response(result)
 
     # def get_serializer_class(self):
     #     return CustomTravelSerializer
