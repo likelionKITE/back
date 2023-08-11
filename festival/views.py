@@ -37,7 +37,7 @@ class FestivalSearchView(generics.ListAPIView):
     def get_queryset(self):
         nowyear = datetime.today().strftime("%Y")
         month_selected = self.request.GET.get('month')
-        area_selected = self.request.GET.get('area')
+        area_selected = self.request.GET.get('area_code')
 
         queryset = Tour.objects.filter(content_type_id="85").annotate(
         event_start_date=models.F('detail_intro_fest__event_start_date'),
@@ -76,6 +76,14 @@ def FestivalCombinedView_main(request):
 
         data['nowview_response'] = future_view2.result()
         data['listview_response'] = future_view1.result()
-
+        month_dict = {}
+        for i in range(1, 13):
+            month_dict[str(i)] = str(i).zfill(2)
+        area_dict = {}
+        for i in AreaCode.objects.all():
+            if i.name not in area_dict:
+                area_dict[i.name] = i.code
+        data['month_dict'] = month_dict
+        data['area_dict'] = area_dict
 
     return JsonResponse(data)
