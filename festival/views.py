@@ -2,6 +2,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from django.db import models
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
+from django.db.models import Count
 
 from django.shortcuts import render
 from rest_framework import generics
@@ -38,6 +41,7 @@ class FestivalSearchView(generics.ListAPIView):
         nowyear = datetime.today().strftime("%Y")
         month_selected = self.request.GET.get('month')
         area_selected = self.request.GET.get('area_code')
+        sort_method = self.request.GET.get('sortby')
 
         queryset = Tour.objects.filter(content_type_id="85").annotate(
         event_start_date=models.F('detail_intro_fest__event_start_date'),
@@ -49,6 +53,11 @@ class FestivalSearchView(generics.ListAPIView):
 
         if area_selected:
             queryset = queryset.filter(area_code=area_selected)
+
+        if sort_method == 'startdate':
+            queryset.order_by('event_start_date')
+        if sort_method == 'like':
+            queryset.annotate(count=Count('like_users')).order_by('-count')
 
         return queryset
 
@@ -87,3 +96,16 @@ def FestivalCombinedView_main(request):
         data['area_dict'] = area_dict
 
     return JsonResponse(data)
+
+
+@login_required(login_url='/member/login')
+def like(request,content_id):
+    # 어떤 게시물에, 어떤 사람이 like를 했는 지
+    tour = Tour.objects.get(content_id=content_id) # 게시물 번호 몇번인지 정보 가져옴
+    user = request.user
+    if tour.like_users.filter(id=request.user.id).exists(): # 유저면 알아서 유저의 id로 검색해줌
+        tour.like_users.remove(user)
+        return JsonResponse({'message': 'deleted', 'like_cnt' : tour.like_users.count() })
+    else:
+        tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
+        return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})

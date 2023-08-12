@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+from member.models import CustomUser
+
 
 class ServiceCode(models.Model):
     id = models.AutoField(primary_key=True, null=False, blank=False)
@@ -46,6 +48,7 @@ class Tour(models.Model):
     sigungu_code = models.ForeignKey(AreaCode, on_delete=models.CASCADE, related_name='tour')
     tel = models.TextField(default='')
     title = models.TextField(default='')
+    like_users = models.ManyToManyField(CustomUser, related_name='like_tours')
 
     def __str__(self):
         return self.title
