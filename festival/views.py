@@ -97,7 +97,7 @@ def FestivalCombinedView_main(request):
 
     return JsonResponse(data)
 
-
+########################################### 복붙 ###########################################
 @login_required(login_url='/member/login')
 def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
@@ -109,3 +109,5 @@ def like(request,content_id):
     else:
         tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
         return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
+
+######################################################################################
