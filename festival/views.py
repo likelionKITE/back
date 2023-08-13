@@ -59,9 +59,9 @@ class FestivalSearchView(generics.ListAPIView):
             queryset = queryset.filter(area_code=area_selected)
 
         if sort_method == 'startdate':
-            queryset.order_by('event_start_date')
+            queryset = queryset.order_by('event_start_date')
         if sort_method == 'like':
-            queryset.annotate(count=Count('like_users')).order_by('-count')
+            queryset = queryset.annotate(count=Count('like_users')).order_by('-count')
 
         return queryset
 
