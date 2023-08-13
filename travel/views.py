@@ -128,20 +128,20 @@ def like(request,content_id):
         return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
 
 ########################################### 리뷰 ###########################################
-class ReviewListView(generics.ListCreateAPIView):
-    queryset = Review.objects.all()
-    serializer_class = TravelReviewSerializer
-
-    def get_queryset(self):
-        content_id = self.kwargs['content_id']
-        return Review.objects.filter(content_id=content_id)
-
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        serializer.save(user = user)
+# class ReviewListView(generics.ListCreateAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = TravelReviewSerializer
+#
+#     def get_queryset(self):
+#         content_id = self.kwargs['content_id']
+#         return Review.objects.filter(content_id=content_id)
+#
+#     # authentication_classes = [JWTAuthentication]
+#     # permission_classes = [IsAuthenticatedOrReadOnly]
+#
+#     def perform_create(self, serializer):
+#         user = self.request.user
+#         serializer.save(user = user)
 
 ########################################### not used ###########################################
 # class TravelFindView(generics.ListAPIView):
