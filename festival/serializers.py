@@ -2,11 +2,13 @@ from rest_framework import serializers
 
 from main.models import Tour, DetailCommon
 
+from main.serializers import MainReviewSerializer
+
 from festival.models import DetailIntroFest
 
 from city.serializers import DetailCommonSerializer
 
-
+# Create your serializers here.
 class DetailIntroFestSerializer(serializers.ModelSerializer):
 
         class Meta:
@@ -75,6 +77,7 @@ class FestivalDetailSerializer(serializers.ModelSerializer):
 
         detailCommon = DetailCommonSerializer(many=True, read_only=True)
         detail_intro_fest = DetailIntroFestSerializer(many=True, read_only=True)
+        reviews = MainReviewSerializer(many=True, read_only=True)
 
         class Meta:
                 model = Tour
@@ -99,4 +102,4 @@ class FestivalDetailSerializer(serializers.ModelSerializer):
                           "title",
                           "detailCommon",
                           "detail_intro_fest",
-                          ]
+                          "reviews"]

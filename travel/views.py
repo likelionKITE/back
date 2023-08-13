@@ -6,16 +6,12 @@ from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
-from .serializers import TravelSerializer, TravelReviewSerializer
-
+from .serializers import TravelSerializer
 from django.db.models import Count
-
-
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 # Create your views here.
-
 class CustomTravelSerializer(TravelSerializer):
             sido_part = serializers.SerializerMethodField()
             sigungu_part = serializers.SerializerMethodField()
@@ -134,38 +130,3 @@ def like(request,content_id):
     else:
         tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
         return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
-
-########################################### 리뷰 ###########################################
-# class ReviewListView(generics.ListCreateAPIView):
-#     queryset = Review.objects.all()
-#     serializer_class = TravelReviewSerializer
-#
-#     def get_queryset(self):
-#         content_id = self.kwargs['content_id']
-#         return Review.objects.filter(content_id=content_id)
-#
-#     # authentication_classes = [JWTAuthentication]
-#     # permission_classes = [IsAuthenticatedOrReadOnly]
-#
-#     def perform_create(self, serializer):
-#         user = self.request.user
-#         serializer.save(user = user)
-
-########################################### not used ###########################################
-# class TravelFindView(generics.ListAPIView):
-#     serializer_class = CustomTravelSerializer  # 사용할 Serializer 클래스 설정
-#     pagination_class = TravelPagination  # 페이지네이션 클래스 설정
-    
-#     def get_queryset(self):
-#         cat1_selected = self.request.GET.get('cat1')
-#         cat2_selected = self.request.GET.get('cat2')
-        
-#         queryset = Tour.objects.filter(content_type_id="76")  # 여행지 데이터 가져오기
-        
-#         if cat1_selected:
-#             queryset = queryset.filter(cat1=cat1_selected)
-        
-#         if cat2_selected:
-#             queryset = queryset.filter(cat2=cat2_selected)
-        
-#         return queryset

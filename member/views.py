@@ -1,10 +1,9 @@
 from django.shortcuts import render
 
-# Create your views here.
 from main.models import Tour, Review
 from concurrent.futures import ThreadPoolExecutor
 from django.http import JsonResponse
-from travel.serializers import TravelReviewSerializer
+from main.serializers import MainReviewSerializer
 from festival.serializers import FestivalSerializer
 
 from main.serializers import ReviewWithTourSerializer
@@ -18,7 +17,7 @@ from member.serializers import CustomUserSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required
 
-
+# Create your views here.
 class ChangeNicknameView(generics.UpdateAPIView):
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]

@@ -1,16 +1,17 @@
 from django.shortcuts import render
-
-# Create your views here.
 from main.models import Tour, Review
 from django.db.models import Count
-
-from main.serializers import MainBannerSerializer, ReviewWithTourSerializer
+from main.serializers import MainBannerSerializer, ReviewWithTourSerializer, MainReviewSerializer
 from festival.serializers import FestivalSerializer
 from concurrent.futures import ThreadPoolExecutor
 from django.http import JsonResponse
 from convert_to_queryset import list_to_queryset
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import generics
+from rest_framework.exceptions import NotFound
 
-
+# Create your views here.
 def banner_list_view_logic():
     queryset = Tour.objects.filter(content_type_id="76").order_by('?')[:4]
     serializer = MainBannerSerializer(queryset, many=True)
@@ -56,3 +57,38 @@ def MainCombinedView(request):
         data['goodreview_response'] = future_view4.result()
 
     return JsonResponse(data)
+
+########################################## review ############################################
+class ReviewListView(generics.ListCreateAPIView):
+    serializer_class = MainReviewSerializer
+
+    def get_queryset(self):
+        # content_id = self.kwargs['content_id']
+        return Review.objects.filter(content_id=Tour.objects.get(content_id=self.request.path.split("/")[-2])).all()
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        content_id = Tour.objects.get(content_id=self.request.path.split("/")[-2])
+        serializer.save(user = user, content_id=content_id)
+
+class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    serializer_class = MainReviewSerializer
+
+    def get_object(self):
+        content_id = self.kwargs['content_id']
+        try:
+            review = Review.objects.get(content_id=content_id)
+            return review
+        except Review.DoesNotExist:
+            raise NotFound("Review not found for this content.")
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        serializer.save(user=user)
+
+    def perform_destroy(self, instance):
+        instance.delete()

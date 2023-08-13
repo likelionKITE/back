@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import *
-from festival.views import ReviewListView
+from main.views import ReviewListView, ReviewDetailView
+
 app_name = 'city'
 
 urlpatterns = [
@@ -11,4 +12,5 @@ urlpatterns = [
     path('detail/<int:content_id>/', CityDetailView.as_view(), name='city_detail'),
     path('like/<int:content_id>/', like, name='city_like'),
     path('review/<int:content_id>/', ReviewListView.as_view(), name='city_review'),
+    path('review/detail/<int:content_id>/', ReviewDetailView.as_view(), name='city_review_detail'),
 ]
