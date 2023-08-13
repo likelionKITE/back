@@ -43,6 +43,8 @@ class TravelListView(generics.ListAPIView):
     def get_queryset(self):
         cat1_selected = self.request.GET.get('cat1')
         cat2_selected = self.request.GET.get('cat2')
+        sort_method = self.request.GET.get('sortby')
+
         
         queryset = Tour.objects.filter(content_type_id="76")  # 여행지 데이터 가져오기
         
@@ -51,6 +53,9 @@ class TravelListView(generics.ListAPIView):
         
         if cat2_selected:
             queryset = queryset.filter(cat2=cat2_selected)
+
+        if sort_method:
+            queryset = queryset.annotate(count=Count('like_users')).order_by('-count')
         
         return queryset
 
