@@ -21,12 +21,18 @@ from travel.serializers import TravelReviewSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 
-def festival_list_view_logic():
-    queryset = Tour.objects.filter(content_type_id="85")
+def festival_list_view_logic(request):
+    queryset = Tour.objects.filter(content_type_id="85").annotate(
+        event_start_date=models.F('detail_intro_fest__event_start_date'))
+    sort_method = request.GET.get('sortby')
+    if sort_method == 'startdate':
+        queryset = queryset.order_by('event_start_date')
+    if sort_method == 'like':
+        queryset = queryset.annotate(count=Count('like_users')).order_by('-count')
+
+
     serializer = FestivalSerializer(queryset, many=True)
     return serializer.data
-
-
 
 def festival_now_view_logic():
     nowdate = datetime.today().strftime("%Y%m%d")
@@ -84,7 +90,7 @@ class FestivalDetailView(generics.RetrieveAPIView):
 def FestivalCombinedView_main(request):
     data = {}
     with ThreadPoolExecutor(max_workers=2) as executor:
-        future_view1 = executor.submit(festival_list_view_logic)
+        future_view1 = executor.submit(festival_list_view_logic, request)
         future_view2 = executor.submit(festival_now_view_logic)
 
         data['nowview_response'] = future_view2.result()
