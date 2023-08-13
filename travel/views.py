@@ -8,6 +8,9 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from .serializers import TravelSerializer, TravelReviewSerializer
 
+from django.db.models import Count
+
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
