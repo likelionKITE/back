@@ -8,4 +8,6 @@ urlpatterns = [
     path('detail/<int:content_id>/', FestivalDetailView.as_view(), name='festival_detail'),
     path('search/', FestivalSearchView.as_view(), name='festival_search'),
     path('like/<int:content_id>/', like, name='festival_like'), ##### 복붙
+    path('review/<int:content_id>/', ReviewListView.as_view(), name='festival_review'),
+
 ]

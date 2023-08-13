@@ -8,7 +8,8 @@ class TravelReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['content_id', 'user', 'title', 'content', 'rank', 'created_at', 'updated_at']
-        extra_kwargs = {'content_id': {'write_only': True}}
+        read_only_fields = ['content_id', 'created_at', 'updated_at']
+        # extra_kwargs = {'content_id': {'write_only': True}}
 
 class DetailCommonSerializer(serializers.ModelSerializer):
     class Meta:

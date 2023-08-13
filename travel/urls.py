@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import *
-
+from festival.views import ReviewListView
 app_name = 'travel'
 
 urlpatterns = [
