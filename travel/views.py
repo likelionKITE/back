@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from main.models import ServiceCode, AreaCode, Tour, DetailInfo, DetailCommon
+from main.models import ServiceCode, AreaCode, Tour, DetailInfo, DetailCommon, Review
 from .models import DetailIntroTravel
 from rest_framework import generics
 from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
-from .serializers import TravelSerializer
+from .serializers import TravelSerializer, TravelReviewSerializer
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -114,7 +114,7 @@ class TravelDetailView(generics.RetrieveAPIView):
         result = [serialized_instance]  # 결과를 리스트에 추가
         return Response(result)
 
-########################################### 복붙 ###########################################
+########################################### LIKE ###########################################
 @login_required(login_url='/member/login')
 def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
@@ -127,7 +127,23 @@ def like(request,content_id):
         tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
         return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
 
+########################################### 리뷰 ###########################################
+class ReviewListView(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = TravelReviewSerializer
 
+    def get_queryset(self):
+        content_id = self.kwargs['content_id']
+        return Review.objects.filter(content_id=content_id)
+
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user = user)
+
+########################################### not used ###########################################
 # class TravelFindView(generics.ListAPIView):
 #     serializer_class = CustomTravelSerializer  # 사용할 Serializer 클래스 설정
 #     pagination_class = TravelPagination  # 페이지네이션 클래스 설정

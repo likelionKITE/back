@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 from member.models import CustomUser
@@ -71,3 +72,15 @@ class DetailCommon(models.Model):
     homepage = models.TextField(default='')
     content_id = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='detailCommon')
     cpyrhtDivCd = models.TextField(default='')
+
+class Review(models.Model):
+    content_id= models.ForeignKey(Tour, on_delete=models.CASCADE, related_name="reviews")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    rank = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(5)])
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return self.title
