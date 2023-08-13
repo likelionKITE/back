@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from main.models import ServiceCode, AreaCode, Tour, DetailInfo, DetailCommon
+from main.models import ServiceCode, AreaCode, Tour, DetailInfo, DetailCommon, Review
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import serializers
-from .serializers import CitySerializer
+from .serializers import CitySerializer, CityReviewSerializer
 import requests
 from datetime import datetime
 from django.db.models import Q
@@ -90,40 +90,6 @@ class CityDetailView(generics.RetrieveAPIView):
     def get_queryset(self):
         return Tour.objects.all()
 
-# class CityTotalListView(generics.ListAPIView):
-#     serializer_class = CustomCitySerializer
-#     pagination_class = CityPagination
-
-#     def get_queryset(self):
-#         area_selected = self.request.GET.get('area_code')
-#         current_date = datetime.today().strftime("%Y%m%d")
-
-#         travel_queryset = Tour.objects.filter(content_type_id="76")
-#         fest_queryset = Tour.objects.filter(content_type_id="85")
-
-#         if area_selected:
-#             travel_queryset = travel_queryset.filter(area_code=area_selected)
-#             fest_queryset = fest_queryset.filter(area_code=area_selected)
-
-#         fest_queryset = fest_queryset.filter(
-#             Q(detail_intro_fest__event_start_date__lte=current_date) &
-#             Q(detail_intro_fest__event_end_date__gte=current_date)
-#         )
-
-#         total_queryset = travel_queryset.union(fest_queryset)
-#         return total_queryset
-
-#     def list(self, request, *args, **kwargs):
-#         queryset = self.get_queryset()
-#         page = self.paginate_queryset(queryset)
-
-#         if page is not None:
-#             serializer = self.get_serializer(page, many=True)
-#             return self.get_paginated_response(serializer.data)
-
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(serializer.data)
-
 class CityTotalListView(generics.ListAPIView):
     serializer_class = CustomCitySerializer
 
@@ -192,7 +158,7 @@ class CityTotalListView(generics.ListAPIView):
         return Response(result)
 
 
-########################################### 복붙 ###########################################
+########################################### LIKE ###########################################
 @login_required(login_url='/member/login')
 def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
@@ -204,3 +170,19 @@ def like(request,content_id):
     else:
         tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
         return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
+
+########################################### 리뷰 ###########################################
+class ReviewListView(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = CityReviewSerializer
+
+    def get_queryset(self):
+        content_id = self.kwargs['content_id']
+        return Review.objects.filter(content_id=content_id)
+
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user = user)

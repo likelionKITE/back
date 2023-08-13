@@ -9,5 +9,6 @@ urlpatterns = [
     # path('fest/', CityFestListView.as_view(), name='city_fest_list'),
     path('list/', CityTotalListView.as_view(), name='city_tlist'),
     path('detail/<int:content_id>/', CityDetailView.as_view(), name='city_detail'),
-path('like/<int:content_id>/', like, name='city_like'), ##### 복붙
+    path('like/<int:content_id>/', like, name='city_like'),
+    path('review/<int:content_id>/', ReviewListView.as_view(), name='city_review'),
 ]

@@ -1,8 +1,14 @@
 from rest_framework import serializers
-from main.models import Tour, AreaCode, ServiceCode, DetailInfo, DetailCommon
+from main.models import Tour, AreaCode, ServiceCode, DetailInfo, DetailCommon, Review
 from .models import DetailIntroTravel
 
 # Create your serializers here.
+class TravelReviewSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source = 'user.nickname')
+    class Meta:
+        model = Review
+        fields = ['content_id', 'user', 'title', 'content', 'rank', 'created_at', 'updated_at']
+        extra_kwargs = {'content_id': {'write_only': True}}
 
 class DetailCommonSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,6 +27,7 @@ class TravelSerializer(serializers.ModelSerializer):
 
     detailCommon = DetailCommonSerializer(many=True, read_only=True)
     detail_intro_travel = DetailIntroTrvSerializer(many=True, read_only=True)
+    reviews = TravelReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Tour
@@ -44,4 +51,5 @@ class TravelSerializer(serializers.ModelSerializer):
                 "tel",
                 "title",
                 "detailCommon",
-                "detail_intro_travel"]
+                "detail_intro_travel",
+                "reviews"]
