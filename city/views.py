@@ -1,27 +1,17 @@
 from django.shortcuts import render
 from main.models import ServiceCode, AreaCode, Tour, DetailInfo, DetailCommon, Review
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.generics import ListCreateAPIView, ListAPIView, CreateAPIView
-from rest_framework.generics import RetrieveAPIView, DestroyAPIView, UpdateAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import serializers
-from .serializers import CitySerializer, CityReviewSerializer
-import requests
+from .serializers import CitySerializer
 from datetime import datetime
 from django.db.models import Q
-
-########################################### 복붙 ###########################################
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
-
 # Create your views here.
-
 class CustomCitySerializer(CitySerializer):
             sido_part = serializers.SerializerMethodField()
             sigungu_part = serializers.SerializerMethodField()
@@ -170,19 +160,3 @@ def like(request,content_id):
     else:
         tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
         return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
-
-########################################### 리뷰 ###########################################
-# class ReviewListView(generics.ListCreateAPIView):
-#     queryset = Review.objects.all()
-#     serializer_class = CityReviewSerializer
-#
-#     def get_queryset(self):
-#         content_id = self.kwargs['content_id']
-#         return Review.objects.filter(content_id=content_id)
-#
-#     # authentication_classes = [JWTAuthentication]
-#     # permission_classes = [IsAuthenticatedOrReadOnly]
-#
-#     def perform_create(self, serializer):
-#         user = self.request.user
-#         serializer.save(user = user)

@@ -3,24 +3,14 @@ from datetime import datetime
 from django.db import models
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from django.db.models import Count
-
 from django.shortcuts import render
 from rest_framework import generics
-
-# Create your views here.
-from main.models import Tour, AreaCode, Review
-
+from main.models import Tour, AreaCode
 from django.db.models import Q
-
 from festival.serializers import FestivalSerializer, FestivalSerializer_now, FestivalDetailSerializer
 
-from travel.serializers import TravelReviewSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-
-
+# Create your views here.
 def festival_list_view_logic(request):
     queryset = Tour.objects.filter(content_type_id="85").annotate(
         event_start_date=models.F('detail_intro_fest__event_start_date'))
@@ -119,21 +109,3 @@ def like(request,content_id):
     else:
         tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
         return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
-
-######################################################################################
-
-
-class ReviewListView(generics.ListCreateAPIView):
-    serializer_class = TravelReviewSerializer
-
-    def get_queryset(self):
-        # content_id = self.kwargs['content_id']
-        return Review.objects.filter(content_id=Tour.objects.get(content_id=self.request.path.split("/")[-2])).all()
-
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        content_id = Tour.objects.get(content_id=self.request.path.split("/")[-2])
-        serializer.save(user = user, content_id=content_id)
