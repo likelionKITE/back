@@ -12,6 +12,9 @@ from rest_framework import generics
 from rest_framework.exceptions import NotFound
 
 # Create your views here.
+from main.permissions import IsOwnerOrReadOnly
+
+
 def banner_list_view_logic():
     queryset = Tour.objects.filter(content_type_id="76").order_by('?')[:4]
     serializer = MainBannerSerializer(queryset, many=True)
@@ -24,16 +27,20 @@ def most_liked_travel_list_view_logic():
 
 def theme_festival_view_logic(request):
     queryset = Tour.objects.filter(content_type_id="85")
-    serializer = FestivalSerializer(queryset, many=True)
+    # serializer = FestivalSerializer(queryset, many=True)
     flower = queryset.filter(detailCommon__overview__icontains='flower')
     food = queryset.filter(detailCommon__overview__icontains='food')
     traditional = queryset.filter(detailCommon__overview__icontains='traditional')
+    music = queryset.filter(detailCommon__overview__icontains='music')
+
     serialized_data = {}
 
     # 각각의 필터링된 데이터를 직렬화하여 저장
     serialized_data['flower'] = FestivalSerializer(flower, many=True).data
     serialized_data['food'] = FestivalSerializer(food, many=True).data
     serialized_data['traditional'] = FestivalSerializer(traditional, many=True).data
+    serialized_data['music'] = FestivalSerializer(music, many=True).data
+
 
     return serialized_data
 
@@ -77,14 +84,16 @@ class ReviewListView(generics.ListCreateAPIView):
 class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = MainReviewSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_object(self):
-        content_id = self.kwargs['content_id']
+        # content_id = self.kwargs['content_id']
         try:
-            review = Review.objects.get(content_id=content_id)
+            review = Review.objects.get(content_id=Tour.objects.get(content_id=self.request.path.split("/")[-4]), id=self.request.path.split("/")[-2])
             return review
         except Review.DoesNotExist:
-            raise NotFound("Review not found for this content.")
+            raise NotFound("Review not found for this review id.")
 
     def perform_update(self, serializer):
         user = self.request.user
