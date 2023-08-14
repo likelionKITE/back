@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
+
 # Create your views here.
 class CustomCitySerializer(CitySerializer):
             sido_part = serializers.SerializerMethodField()
