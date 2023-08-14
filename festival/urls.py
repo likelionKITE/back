@@ -10,5 +10,5 @@ urlpatterns = [
     path('search/', FestivalSearchView.as_view(), name='festival_search'),
     path('like/<int:content_id>/', like, name='festival_like'), ##### 복붙
     path('review/<int:content_id>/', ReviewListView.as_view(), name='festival_review'),
-    path('review/detail/<int:content_id>/', ReviewDetailView.as_view(),name='festival_review_detail'),
+    path('review/<int:content_id>/detail/<int:pk>/', ReviewDetailView.as_view(),name='festival_review_detail'),
 ]
