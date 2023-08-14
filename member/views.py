@@ -5,6 +5,9 @@ from concurrent.futures import ThreadPoolExecutor
 from django.http import JsonResponse
 from main.serializers import MainReviewSerializer
 from festival.serializers import FestivalSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from main.serializers import ReviewWithTourSerializer
 
@@ -37,7 +40,9 @@ def user_review_logic(request):
     serializer = ReviewWithTourSerializer(queryset, many=True)
     return serializer.data
 
-
+@login_required(login_url='/member/login')
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def MypageCombinedView(request):
     data = {}
     with ThreadPoolExecutor(max_workers=2) as executor:
