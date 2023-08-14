@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'city',
     'festival',
     'member',
@@ -54,6 +55,8 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 	'allauth',
 	'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 	# simple-jwt 관련 관련
 	'rest_framework_simplejwt',
 ]
@@ -163,7 +166,11 @@ import pymysql
 
 pymysql.install_as_MySQLdb()
 
+SITE_ID = 1
+
 AUTH_USER_MODEL = 'member.CustomUser'
+
+REST_USE_JWT = True
 
 REST_AUTH = {
     'LOGIN_SERIALIZER': 'dj_rest_auth.serializers.LoginSerializer',
@@ -227,3 +234,17 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
 }
+
+from pathlib import Path
+import os
+import json
+import sys
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = os.path.dirname(BASE_DIR)
+SECRET_BASE_FILE = os.path.join(BASE_DIR, 'secrets.json')
+
+secrets = json.loads(open(SECRET_BASE_FILE).read())
+
+for key, value in secrets.items():
+    setattr(sys.modules[__name__], key, value)
