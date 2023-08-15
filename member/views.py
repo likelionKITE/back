@@ -1,24 +1,18 @@
 from django.shortcuts import render
-
 from main.models import Tour, Review
+from main.serializers import ReviewWithTourSerializer
 from concurrent.futures import ThreadPoolExecutor
 from django.http import JsonResponse
-from main.serializers import MainReviewSerializer
 from festival.serializers import FestivalSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
-from main.serializers import ReviewWithTourSerializer
-
-from member.models import CustomUser
-
 from rest_framework import generics
-
+from member.models import CustomUser
 from member.serializers import CustomUserSerializer
-
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 class ChangeNicknameView(generics.UpdateAPIView):
@@ -41,7 +35,7 @@ def user_review_logic(request):
     serializer = ReviewWithTourSerializer(queryset, many=True)
     return serializer.data
 
-# @login_required(login_url='/member/login')
+@login_required(login_url='/member/login')
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def MypageCombinedView(request):
