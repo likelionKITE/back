@@ -11,8 +11,8 @@ from django.db.models import Q
 from festival.serializers import FestivalSerializer, FestivalSerializer_now, FestivalDetailSerializer
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes, permission_classes, api_view
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 # Create your views here.
@@ -42,6 +42,7 @@ def festival_now_view_logic():
 class FestivalSearchView(generics.ListAPIView):
 
     serializer_class = FestivalSerializer
+
     def get_queryset(self):
         nowyear = datetime.today().strftime("%Y")
         month_selected = self.request.GET.get('month')
@@ -70,6 +71,7 @@ class FestivalSearchView(generics.ListAPIView):
 class FestivalDetailView(generics.RetrieveAPIView):
     serializer_class = FestivalDetailSerializer
 
+
     def get_object(self):
         content_id = self.request.query_params.get('content_id')
         queryset = Tour.objects.filter(content_type_id="85")
@@ -82,39 +84,44 @@ class FestivalDetailView(generics.RetrieveAPIView):
         return obj
 
 # 여러 뷰의 결과를 한 url에서 동시에 내보내기 - 근데 이렇게 하려면 view를 클래스형태가 아니라 저렇게 함수 형태로 구현해야 한대
+
+@api_view(['GET'])
 def FestivalCombinedView_main(request):
     data = {}
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        future_view1 = executor.submit(festival_list_view_logic, request)
-        future_view2 = executor.submit(festival_now_view_logic)
+    if request.method == 'GET':
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future_view1 = executor.submit(festival_list_view_logic, request)
+            future_view2 = executor.submit(festival_now_view_logic)
 
-        data['nowview_response'] = future_view2.result()
-        data['listview_response'] = future_view1.result()
-        month_dict = {}
-        for i in range(1, 13):
-            month_dict[str(i)] = str(i).zfill(2)
-        area_dict = {}
-        for i in AreaCode.objects.all():
-            if i.name not in area_dict:
-                area_dict[i.name] = i.code
-        data['month_dict'] = month_dict
-        data['area_dict'] = area_dict
+            data['nowview_response'] = future_view2.result()
+            data['listview_response'] = future_view1.result()
+            month_dict = {}
+            for i in range(1, 13):
+                month_dict[str(i)] = str(i).zfill(2)
+            area_dict = {}
+            for i in AreaCode.objects.all():
+                if i.name not in area_dict:
+                    area_dict[i.name] = i.code
+            data['month_dict'] = month_dict
+            data['area_dict'] = area_dict
 
-    return JsonResponse(data)
+        return JsonResponse(data)
 
 ########################################### 복붙 ###########################################
 # @login_required(login_url='/member/login')
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
+@api_view(['POST'])
 def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
-    tour = Tour.objects.get(content_id=content_id) # 게시물 번호 몇번인지 정보 가져옴
-    user = request.user
-    if not request.user.is_authenticated:
-        return JsonResponse({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
-    if tour.like_users.filter(id=request.user.id).exists(): # 유저면 알아서 유저의 id로 검색해줌
-        tour.like_users.remove(user)
-        return JsonResponse({'message': 'deleted', 'like_cnt' : tour.like_users.count() })
-    else:
-        tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
-        return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
+    if request.method == 'POST':
+        tour = Tour.objects.get(content_id=content_id) # 게시물 번호 몇번인지 정보 가져옴
+        user = request.user
+        if not request.user.is_authenticated:
+            return JsonResponse({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        if tour.like_users.filter(id=request.user.id).exists(): # 유저면 알아서 유저의 id로 검색해줌
+            tour.like_users.remove(user)
+            return JsonResponse({'message': 'deleted', 'like_cnt' : tour.like_users.count() })
+        else:
+            tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
+            return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
