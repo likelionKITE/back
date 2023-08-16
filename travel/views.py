@@ -13,7 +13,7 @@ from django.http import JsonResponse
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from rest_framework import status
 
@@ -128,7 +128,7 @@ class TravelDetailView(generics.RetrieveAPIView):
 # @login_required(login_url='/member/login')
 @api_view(['POST', 'GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def like(request,content_id):
     if request.method == 'POST':
         # 어떤 게시물에, 어떤 사람이 like를 했는 지

@@ -110,7 +110,7 @@ def FestivalCombinedView_main(request):
 ########################################### 복붙 ###########################################
 # @login_required(login_url='/member/login')
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 @api_view(['GET', 'POST'])
 def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
