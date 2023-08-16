@@ -6,7 +6,7 @@ class MainReviewSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source = 'user.nickname')
     class Meta:
         model = Review
-        fields = ['content_id', 'user', 'title', 'content', 'rank', 'created_at', 'updated_at']
+        fields = ['id', 'content_id', 'user', 'title', 'content', 'rank', 'created_at', 'updated_at']
         read_only_fields = ['content_id', 'created_at', 'updated_at']
 
 #==========================================================================================
@@ -16,7 +16,7 @@ class ReviewWithTourSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['content_id', 'title', 'content', 'rank', 'created_at', 'updated_at', 'tour', 'real_content_id']
+        fields = ['id', 'content_id', 'title', 'content', 'rank', 'created_at', 'updated_at', 'tour', 'real_content_id']
         read_only_fields = ['content_id', 'created_at', 'updated_at']
 
 class MainBannerSerializer(serializers.ModelSerializer):
