@@ -9,6 +9,9 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import generics
 from member.models import CustomUser
+from rest_framework import status
+from rest_framework.response import Response
+
 from member.serializers import CustomUserSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.decorators import login_required
@@ -40,6 +43,8 @@ def user_review_logic(request):
 @permission_classes([IsAuthenticatedOrReadOnly])
 def MypageCombinedView(request):
     data = {}
+    if not request.user.is_authenticated:
+        return Response({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
     with ThreadPoolExecutor(max_workers=2) as executor:
         future_view1 = executor.submit(user_like_view_logic, request)
         future_view2 = executor.submit(user_review_logic, request)
