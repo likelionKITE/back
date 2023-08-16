@@ -111,7 +111,7 @@ def FestivalCombinedView_main(request):
 # @login_required(login_url='/member/login')
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
     if request.method == 'POST':
@@ -125,3 +125,6 @@ def like(request,content_id):
         else:
             tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
             return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
+    if request.method == 'GET':
+        tour = Tour.objects.get(content_id=content_id)  # 게시물 번호 몇번인지 정보 가져옴
+        return JsonResponse({'like_cnt' : tour.like_users.count()})

@@ -126,18 +126,22 @@ class TravelDetailView(generics.RetrieveAPIView):
 
 ########################################### LIKE ###########################################
 # @login_required(login_url='/member/login')
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def like(request,content_id):
-    # 어떤 게시물에, 어떤 사람이 like를 했는 지
-    tour = Tour.objects.get(content_id=content_id) # 게시물 번호 몇번인지 정보 가져옴
-    user = request.user
-    if not request.user.is_authenticated:
-        return JsonResponse({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
-    if tour.like_users.filter(id=request.user.id).exists(): # 유저면 알아서 유저의 id로 검색해줌
-        tour.like_users.remove(user)
-        return JsonResponse({'message': 'deleted', 'like_cnt' : tour.like_users.count() })
-    else:
-        tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
-        return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
+    if request.method == 'POST':
+        # 어떤 게시물에, 어떤 사람이 like를 했는 지
+        tour = Tour.objects.get(content_id=content_id) # 게시물 번호 몇번인지 정보 가져옴
+        user = request.user
+        if not request.user.is_authenticated:
+            return JsonResponse({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        if tour.like_users.filter(id=request.user.id).exists(): # 유저면 알아서 유저의 id로 검색해줌
+            tour.like_users.remove(user)
+            return JsonResponse({'message': 'deleted', 'like_cnt' : tour.like_users.count() })
+        else:
+            tour.like_users.add(user) # post의 like에 현재유저의 정보를 넘김
+            return JsonResponse({'message': 'added', 'like_cnt' : tour.like_users.count()})
+    if request.method == 'GET':
+        tour = Tour.objects.get(content_id=content_id)  # 게시물 번호 몇번인지 정보 가져옴
+        return JsonResponse({'like_cnt' : tour.like_users.count()})
