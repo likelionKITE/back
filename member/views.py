@@ -27,12 +27,14 @@ class ChangeNicknameView(generics.UpdateAPIView):
         return self.request.user
 
 # @login_required(login_url='/member/login/')
+@authentication_classes([JWTAuthentication])
 def user_like_view_logic(request):
     queryset = Tour.objects.filter(like_users=request.user)
     serializer = FestivalSerializer(queryset, many=True)
     return serializer.data
 
 # @login_required(login_url='/member/login/')
+@authentication_classes([JWTAuthentication])
 def user_review_logic(request):
     queryset = Review.objects.filter(user=request.user)
     serializer = ReviewWithTourSerializer(queryset, many=True)
