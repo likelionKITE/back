@@ -14,8 +14,8 @@ from rest_framework.response import Response
 
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes, permission_classes, api_view
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 # Create your views here.
 class CustomCitySerializer(CitySerializer):
@@ -35,42 +35,45 @@ class CustomCitySerializer(CitySerializer):
             class Meta(CitySerializer.Meta):
                 fields = ('title', 'first_image2', 'sido_part', 'sigungu_part', 'content_id', 'content_type_id')
 
-class CityPagination(LimitOffsetPagination):
-    default_limit = 20
+# class CityPagination(LimitOffsetPagination):
+#     default_limit = 20
 #===================================================================================================
 
-class CityTravelListView(generics.ListAPIView):
-    serializer_class = CustomCitySerializer
-    pagination_class = CityPagination
-
-    def get_queryset(self):
-        area_selected = self.request.GET.get('area_code')
-        queryset = Tour.objects.filter(content_type_id="76")  # 해당 지역의 여행지 데이터 가져오기
-        if area_selected:
-            queryset = queryset.filter(area_code=area_selected)
-        return queryset
-
-class CityFestListView(generics.ListAPIView):
-    serializer_class = CustomCitySerializer
-    pagination_class = CityPagination
-
-    def get_queryset(self):
-        area_selected = self.request.GET.get('area_code')
-        current_month = datetime.today().strftime("%Y%m")
-
-        queryset = Tour.objects.filter(content_type_id="85")  # 해당 지역의 축제 데이터 가져오기
-        if area_selected:
-            queryset = queryset.filter(area_code=area_selected)
-        
-        queryset = queryset.filter(
-            Q(detail_intro_fest__event_start_date__contains=current_month) |
-            Q(detail_intro_fest__event_end_date__contains=current_month)
-        )
-
-        return queryset
+# class CityTravelListView(generics.ListAPIView):
+#     serializer_class = CustomCitySerializer
+#     pagination_class = CityPagination
+#
+#     def get_queryset(self):
+#         area_selected = self.request.GET.get('area_code')
+#         queryset = Tour.objects.filter(content_type_id="76")  # 해당 지역의 여행지 데이터 가져오기
+#         if area_selected:
+#             queryset = queryset.filter(area_code=area_selected)
+#         return queryset
+#
+# class CityFestListView(generics.ListAPIView):
+#     serializer_class = CustomCitySerializer
+#     pagination_class = CityPagination
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [JWTAuthentication]
+#
+#     def get_queryset(self):
+#         area_selected = self.request.GET.get('area_code')
+#         current_month = datetime.today().strftime("%Y%m")
+#
+#         queryset = Tour.objects.filter(content_type_id="85")  # 해당 지역의 축제 데이터 가져오기
+#         if area_selected:
+#             queryset = queryset.filter(area_code=area_selected)
+#
+#         queryset = queryset.filter(
+#             Q(detail_intro_fest__event_start_date__contains=current_month) |
+#             Q(detail_intro_fest__event_end_date__contains=current_month)
+#         )
+#
+#         return queryset
 
 class CityDetailView(generics.RetrieveAPIView):
     serializer_class = CitySerializer
+
 
     def get_object(self):
         queryset = self.get_queryset()
@@ -88,6 +91,7 @@ class CityDetailView(generics.RetrieveAPIView):
 
 class CityTotalListView(generics.ListAPIView):
     serializer_class = CustomCitySerializer
+
 
     def get_queryset(self):
         area_selected = self.request.GET.get('area_code')
@@ -156,6 +160,7 @@ class CityTotalListView(generics.ListAPIView):
 
 ########################################### LIKE ###########################################
 # @login_required(login_url='/member/login')
+@api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def like(request,content_id):

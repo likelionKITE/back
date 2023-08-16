@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.decorators import authentication_classes, permission_classes, api_view
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import status
@@ -126,6 +126,7 @@ class TravelDetailView(generics.RetrieveAPIView):
 
 ########################################### LIKE ###########################################
 # @login_required(login_url='/member/login')
+@api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def like(request,content_id):
