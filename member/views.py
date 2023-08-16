@@ -35,7 +35,7 @@ def user_review_logic(request):
     serializer = ReviewWithTourSerializer(queryset, many=True)
     return serializer.data
 
-@login_required(login_url='/member/login')
+# @login_required(login_url='/member/login')
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def MypageCombinedView(request):
