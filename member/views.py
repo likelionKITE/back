@@ -44,7 +44,7 @@ def user_review_logic(request):
 def MypageCombinedView(request):
     data = {}
     if not request.user.is_authenticated:
-        return Response({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
     with ThreadPoolExecutor(max_workers=2) as executor:
         future_view1 = executor.submit(user_like_view_logic, request)
         future_view2 = executor.submit(user_review_logic, request)
