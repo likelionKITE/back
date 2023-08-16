@@ -162,7 +162,7 @@ class CityTotalListView(generics.ListAPIView):
 # @login_required(login_url='/member/login')
 @api_view(['POST' 'GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def like(request,content_id):
     if request.method == 'POST':
         # 어떤 게시물에, 어떤 사람이 like를 했는 지
