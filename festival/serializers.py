@@ -35,7 +35,7 @@ class FestivalSerializer(serializers.ModelSerializer):
                 model = Tour
                 fields = [
                         "content_id",
-                        "first_image2",
+                        "first_image",
                         "title",
                 ]
 

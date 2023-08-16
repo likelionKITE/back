@@ -44,7 +44,7 @@ class CitySerializer(serializers.ModelSerializer):
                 "content_id",
                 "content_type_id",
                 "first_image",
-                "first_image2",
+                # "first_image2",
                 "cpyrhtDivCd",
                 "mapx",
                 "mapy",
