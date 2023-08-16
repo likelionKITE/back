@@ -10,6 +10,10 @@ from main.models import Tour, AreaCode
 from django.db.models import Q
 from festival.serializers import FestivalSerializer, FestivalSerializer_now, FestivalDetailSerializer
 
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 # Create your views here.
 def festival_list_view_logic(request):
     queryset = Tour.objects.filter(content_type_id="85").annotate(
@@ -98,7 +102,9 @@ def FestivalCombinedView_main(request):
     return JsonResponse(data)
 
 ########################################### 복붙 ###########################################
-@login_required(login_url='/member/login')
+# @login_required(login_url='/member/login')
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
     tour = Tour.objects.get(content_id=content_id) # 게시물 번호 몇번인지 정보 가져옴
