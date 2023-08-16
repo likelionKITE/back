@@ -15,6 +15,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+from rest_framework import status
+
 # Create your views here.
 class CustomTravelSerializer(TravelSerializer):
             sido_part = serializers.SerializerMethodField()
@@ -130,6 +132,8 @@ def like(request,content_id):
     # 어떤 게시물에, 어떤 사람이 like를 했는 지
     tour = Tour.objects.get(content_id=content_id) # 게시물 번호 몇번인지 정보 가져옴
     user = request.user
+    if not request.user.is_authenticated:
+        return Response({"message": "로그인한 사용자만 접근할 수 있습니다."}, status=status.HTTP_401_UNAUTHORIZED)
     if tour.like_users.filter(id=request.user.id).exists(): # 유저면 알아서 유저의 id로 검색해줌
         tour.like_users.remove(user)
         return JsonResponse({'message': 'deleted', 'like_cnt' : tour.like_users.count() })
