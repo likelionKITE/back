@@ -160,7 +160,7 @@ class CityTotalListView(generics.ListAPIView):
 
 ########################################### LIKE ###########################################
 # @login_required(login_url='/member/login')
-@api_view(['POST' 'GET'])
+@api_view(['POST', 'GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def like(request,content_id):
