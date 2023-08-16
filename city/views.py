@@ -33,7 +33,7 @@ class CustomCitySerializer(CitySerializer):
                 return parts[-2].strip() if len(parts) >= 2 else ''
 
             class Meta(CitySerializer.Meta):
-                fields = ('title', 'first_image2', 'sido_part', 'sigungu_part', 'content_id', 'content_type_id')
+                fields = ('title', 'first_image', 'sido_part', 'sigungu_part', 'content_id', 'content_type_id')
 
 # class CityPagination(LimitOffsetPagination):
 #     default_limit = 20

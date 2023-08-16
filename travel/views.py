@@ -33,7 +33,7 @@ class CustomTravelSerializer(TravelSerializer):
                 return parts[-2].strip() if len(parts) >= 2 else ''
 
             class Meta(TravelSerializer.Meta):
-                fields = ('title', 'first_image2', 'sido_part', 'sigungu_part', 'content_id')
+                fields = ('title', 'first_image', 'sido_part', 'sigungu_part', 'content_id')
 
 # class TravelPagination(LimitOffsetPagination):
 #     default_limit = 20
