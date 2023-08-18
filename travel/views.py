@@ -120,9 +120,17 @@ class TravelDetailView(generics.RetrieveAPIView):
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serialized_instance = self.serializer_class(instance=instance).data
-        result = [serialized_instance]  # 결과를 리스트에 추가
-        return Response(result)
+
+        serializer = self.get_serializer(instance)
+
+        like_user_exists = "False"
+        if request.user.is_authenticated and instance.like_users.filter(id=request.user.id).exists():
+            like_user_exists = "True"
+
+        response_data = serializer.data
+        response_data['like_user_exists'] = like_user_exists
+
+        return Response(response_data)
 
 ########################################### LIKE ###########################################
 # @login_required(login_url='/member/login')

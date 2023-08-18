@@ -74,7 +74,7 @@ class FestivalDetailSerializer(serializers.ModelSerializer):
         cat1 = serializers.CharField(source="cat3.main_name", read_only=True)
         cat2 = serializers.CharField(source="cat3.mid_name", read_only=True)
         cat3 = serializers.CharField(source="cat3.sub_name", read_only=True)
-
+        like_users = serializers.CharField(source="like_users.id", read_only=True)
         detailCommon = DetailCommonSerializer(many=True, read_only=True)
         detail_intro_fest = DetailIntroFestSerializer(many=True, read_only=True)
         reviews = MainReviewSerializer(many=True, read_only=True)
@@ -102,4 +102,5 @@ class FestivalDetailSerializer(serializers.ModelSerializer):
                           "title",
                           "detailCommon",
                           "detail_intro_fest",
-                          "reviews"]
+                          "reviews",
+                          "like_users"]

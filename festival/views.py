@@ -71,7 +71,6 @@ class FestivalSearchView(generics.ListAPIView):
 class FestivalDetailView(generics.RetrieveAPIView):
     serializer_class = FestivalDetailSerializer
 
-
     def get_object(self):
         content_id = self.request.query_params.get('content_id')
         queryset = Tour.objects.filter(content_type_id="85")
@@ -82,6 +81,20 @@ class FestivalDetailView(generics.RetrieveAPIView):
         obj = generics.get_object_or_404(queryset, content_id=self.kwargs['content_id'])
         self.check_object_permissions(self.request, obj)
         return obj
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance)
+
+        like_user_exists = "False"
+        if request.user.is_authenticated and instance.like_users.filter(id=request.user.id).exists():
+            like_user_exists = "True"
+
+        response_data = serializer.data
+        response_data['like_user_exists'] = like_user_exists
+
+        return Response(response_data)
 
 # 여러 뷰의 결과를 한 url에서 동시에 내보내기 - 근데 이렇게 하려면 view를 클래스형태가 아니라 저렇게 함수 형태로 구현해야 한대
 
