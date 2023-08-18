@@ -89,6 +89,20 @@ class CityDetailView(generics.RetrieveAPIView):
     def get_queryset(self):
         return Tour.objects.all()
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance)
+
+        like_user_exists = "False"
+        if request.user.is_authenticated and instance.like_users.filter(id=request.user.id).exists():
+            like_user_exists = "True"
+
+        response_data = serializer.data
+        response_data['like_user_exists'] = like_user_exists
+
+        return Response(response_data)
+
 class CityTotalListView(generics.ListAPIView):
     serializer_class = CustomCitySerializer
 
